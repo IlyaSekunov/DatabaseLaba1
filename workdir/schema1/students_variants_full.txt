@@ -1,0 +1,5 @@
+full_name+upk|variant+|mark+
+Ilya Sekunov Alekseevich|var 2|10
+Vlad Petrov Andreevich|var 1|10
+Artem Skobelev Victorovich|var 1|10
+test Ivanov Ivanovich|var 3|null
