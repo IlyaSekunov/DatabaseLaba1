@@ -23,10 +23,8 @@ object Database {
             Logger.log("There is no schema with name $schemaName")
             return
         }
-        Logger.log("Deleting schema '$schemaName'...")
         schema.delete()
         schemas.remove(schema)
-        Logger.log("Entities.Schema '$schemaName' has been deleted successfully")
     }
 
     fun schemas() = schemas.toList()

@@ -33,7 +33,7 @@ class Schema(filePath: String) {
         } else {
             directory.mkdir()
         }
-        Logger.log("Entities.Schema '$name' has been initialized successfully")
+        Logger.log("Schema '$name' has been initialized successfully")
     }
 
     fun createTable(tableName: String) {
@@ -63,7 +63,11 @@ class Schema(filePath: String) {
 
     fun delete() {
         deleteAllTables()
-        directory.deleteRecursively()
+        if (directory.deleteRecursively()) {
+            Logger.log("Schema '$name' has been deleted successfully")
+        } else {
+            Logger.log("Couldn't delete schema '$name'")
+        }
     }
 
     private fun deleteAllTables() {
@@ -83,11 +87,11 @@ class Schema(filePath: String) {
             return
         }
         if (inputFile.isDirectory) {
-            Logger.log("Entities.Table must be a file, but found directory")
+            Logger.log("Table must be a file, but found directory")
             return
         }
         if (".${inputFile.extension}" != FILE_EXTENSION) {
-            Logger.log("Entities.Table must be a file with $FILE_EXTENSION extension")
+            Logger.log("Table must be a file with $FILE_EXTENSION extension")
             return
         }
         val tableName = filePath.split(FILE_PATH_SEPARATOR).last.removeSuffix(FILE_EXTENSION)
@@ -95,7 +99,7 @@ class Schema(filePath: String) {
         inputFile.copyTo(newTableFile)
         try {
             createTable(tableName)
-            Logger.log("Entities.Table $tableName has been loaded from file $filePath successfully")
+            Logger.log("Table $tableName has been loaded from file $filePath successfully")
         } catch (e: Exception) {
             Logger.log(e.message.toString())
             newTableFile.delete()
@@ -115,7 +119,7 @@ class Schema(filePath: String) {
 
         val targetDirectory = File("${directory.absolutePath}$FILE_PATH_SEPARATOR$name")
         this.directory.copyRecursively(targetDirectory)
-        Logger.log("Entities.Schema was copied to directory ${targetDirectory.absolutePath}")
+        Logger.log("Schema was copied to directory ${targetDirectory.absolutePath}")
     }
 
     fun tables() = tables.toList()

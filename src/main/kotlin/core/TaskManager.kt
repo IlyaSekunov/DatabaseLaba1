@@ -131,54 +131,45 @@ object TaskManager : Thread() {
                 }
                 "update" -> {
                     if (++currentWord > request.lastIndex) {
-                        Logger.log("Incorrect input. Expected keyword: 'table' after 'update'")
+                        Logger.log("Incorrect input. Expected table_name after 'update'")
                         continue
                     }
-                    when (request[currentWord]) {
-                        "table" -> {
-                            if (++currentWord > request.lastIndex) {
-                                Logger.log("Incorrect input. Expected table name after 'table'")
-                                continue
-                            }
-                            if (Database.defaultSchema == null) {
-                                Logger.log("There is no default schema. Declare default schema firstly")
-                                continue
-                            }
-                            val tableName = request[currentWord]
-                            val schema = Database.defaultSchema
+                    if (Database.defaultSchema == null) {
+                        Logger.log("There is no default schema. Declare default schema firstly")
+                        continue
+                    }
+                    val tableName = request[currentWord]
+                    val schema = Database.defaultSchema
 
-                            if (schema != null) {
-                                if (!schema.containsTable(tableName)) {
-                                    Logger.log("There is no table $tableName in schema ${schema.name}")
-                                    continue
-                                }
-                                if (++currentWord > request.lastIndex) {
-                                    Logger.log("Incorrect input. Expected keyword: 'set'")
-                                    continue
-                                }
-                                when (request[currentWord]) {
-                                    "set" -> {
-                                        if (++currentWord > request.lastIndex) {
-                                            Logger.log("Incorrect input. Expected column_name=new_value after 'set'")
-                                            continue
-                                        }
-                                        val newValues = extractKeyValuesAfterKeyword(request, "set")
-                                        if (newValues.isEmpty()) {
-                                            Logger.log("List of column=new_value is empty. New values should follow 'set'")
-                                            continue
-                                        }
-                                        val conditions = extractKeyValuesAfterKeyword(request, "where")
-                                        if (conditions.isEmpty()) {
-                                            Logger.log("There is no conditions. They should follow keyword 'where'")
-                                            continue
-                                        }
-                                        schema.findTable(tableName)?.updateRow(conditions, newValues)
-                                    }
-                                    else -> Logger.log("Incorrect input. Expected keyword: 'set'")
-                                }
-                            }
+                    if (schema != null) {
+                        if (!schema.containsTable(tableName)) {
+                            Logger.log("There is no table $tableName in schema ${schema.name}")
+                            continue
                         }
-                        else -> Logger.log("Incorrect input. Expected keyword: 'table'")
+                        if (++currentWord > request.lastIndex) {
+                            Logger.log("Incorrect input. Expected keyword: 'set'")
+                            continue
+                        }
+                        when (request[currentWord]) {
+                            "set" -> {
+                                if (++currentWord > request.lastIndex) {
+                                    Logger.log("Incorrect input. Expected column_name=new_value after 'set'")
+                                    continue
+                                }
+                                val newValues = extractKeyValuesAfterKeyword(request, "set")
+                                if (newValues.isEmpty()) {
+                                    Logger.log("List of column=new_value is empty. New values should follow 'set'")
+                                    continue
+                                }
+                                val conditions = extractKeyValuesAfterKeyword(request, "where")
+                                if (conditions.isEmpty()) {
+                                    Logger.log("There is no conditions. They should follow keyword 'where'")
+                                    continue
+                                }
+                                schema.findTable(tableName)?.updateRow(conditions, newValues)
+                            }
+                            else -> Logger.log("Incorrect input. Expected keyword: 'set'")
+                        }
                     }
                 }
                 "delete" -> {
@@ -217,48 +208,39 @@ object TaskManager : Thread() {
                         }
                         "from" -> {
                             if (++currentWord > request.lastIndex) {
-                                Logger.log("Incorrect input. Expected keyword 'table'")
+                                Logger.log("Incorrect input. Expected table name after 'from'")
                                 continue
                             }
-                            when (request[currentWord]) {
-                                "table" -> {
-                                    if (++currentWord > request.lastIndex) {
-                                        Logger.log("Incorrect input. Expected table name after 'table'")
-                                        continue
-                                    }
-                                    if (Database.defaultSchema == null) {
-                                        Logger.log("There is no default schema. Declare default schema firstly")
-                                        continue
-                                    }
+                            if (Database.defaultSchema == null) {
+                                Logger.log("There is no default schema. Declare default schema firstly")
+                                continue
+                            }
 
-                                    val tableName = request[currentWord]
-                                    val schema = Database.defaultSchema
-                                    if (schema != null) {
-                                        if (!schema.containsTable(tableName)) {
-                                            Logger.log("There is no table '$tableName' in schema '${schema.name}'")
-                                            continue
-                                        }
-                                        if (++currentWord > request.lastIndex) {
-                                            Logger.log("Incorrect input. Expected keywords: 'where'")
-                                            continue
-                                        }
-                                        when (request[currentWord]) {
-                                            "where" -> {
-                                                if (++currentWord > request.lastIndex) {
-                                                    Logger.log("Incorrect input. Expected column_name=value")
-                                                    continue
-                                                }
-                                                val conditionsToDelete = extractKeyValuesAfterKeyword(request, "where")
-                                                schema.findTable(tableName)?.deleteRow(conditionsToDelete)
-                                            }
-                                            else -> Logger.log("Incorrect input. Expected keyword: 'where'")
-                                        }
-                                    }
+                            val tableName = request[currentWord]
+                            val schema = Database.defaultSchema
+                            if (schema != null) {
+                                if (!schema.containsTable(tableName)) {
+                                    Logger.log("There is no table '$tableName' in schema '${schema.name}'")
+                                    continue
                                 }
-                                else -> Logger.log("Incorrect input. Expected keywords: 'table'")
+                                if (++currentWord > request.lastIndex) {
+                                    Logger.log("Incorrect input. Expected keywords: 'where'")
+                                    continue
+                                }
+                                when (request[currentWord]) {
+                                    "where" -> {
+                                        if (++currentWord > request.lastIndex) {
+                                            Logger.log("Incorrect input. Expected column_name=value")
+                                            continue
+                                        }
+                                        val conditionsToDelete = extractKeyValuesAfterKeyword(request, "where")
+                                        schema.findTable(tableName)?.deleteRow(conditionsToDelete)
+                                    }
+                                    else -> Logger.log("Incorrect input. Expected keyword: 'where'")
+                                }
                             }
                         }
-                        else -> Logger.log("Incorrect input. Expected keywords: 'table', 'schema'")
+                        else -> Logger.log("Incorrect input. Expected keywords: 'table', 'schema', 'from'")
                     }
                 }
                 "insert" -> {
@@ -381,59 +363,50 @@ object TaskManager : Thread() {
                     when (request[currentWord]) {
                         "from" -> {
                             if (++currentWord > request.lastIndex) {
-                                Logger.log("Incorrect input. Expected keyword: 'table' after 'from'")
+                                Logger.log("Incorrect input. Expected keyword: table_name after 'from'")
                                 continue
                             }
-                            when (request[currentWord]) {
-                                "table" -> {
-                                    if (++currentWord > request.lastIndex) {
-                                        Logger.log("Incorrect input. Expected table name after 'table'")
-                                        continue
-                                    }
-                                    if (Database.defaultSchema == null) {
-                                        Logger.log("There is no default schema. Declare default schema firstly")
-                                        continue
-                                    }
-                                    val tableName = request[currentWord]
-                                    val schema = Database.defaultSchema
-                                    if (schema != null) {
-                                        if (!schema.containsTable(tableName)) {
-                                            Logger.log("There is no table with name '$tableName' in schema '${schema.name}'")
-                                            continue
-                                        }
+                            if (Database.defaultSchema == null) {
+                                Logger.log("There is no default schema. Declare default schema firstly")
+                                continue
+                            }
+                            val tableName = request[currentWord]
+                            val schema = Database.defaultSchema
+                            if (schema != null) {
+                                if (!schema.containsTable(tableName)) {
+                                    Logger.log("There is no table with name '$tableName' in schema '${schema.name}'")
+                                    continue
+                                }
 
-                                        if (currentWord == request.lastIndex) {
+                                if (currentWord == request.lastIndex) {
+                                    val table = schema.findTable(tableName)
+                                    if (table != null) {
+                                        val rows = mutableListOf(table.columns.joinToString(separator = Table.TABLE_DATA_SEPARATOR) { it.name })
+                                        table.rows().forEach {
+                                            rows += it.sequencedValues().joinToString(separator = Table.TABLE_DATA_SEPARATOR)
+                                        }
+                                        printTableRows(rows)
+                                    }
+                                } else {
+                                    when (request[++currentWord]) {
+                                        "where" -> {
+                                            if (++currentWord > request.lastIndex) {
+                                                Logger.log("Incorrect input. Expected id=value")
+                                                continue
+                                            }
+                                            val conditions = extractKeyValuesAfterKeyword(request, "where")
                                             val table = schema.findTable(tableName)
                                             if (table != null) {
                                                 val rows = mutableListOf(table.columns.joinToString(separator = Table.TABLE_DATA_SEPARATOR) { it.name })
-                                                table.rows().forEach {
+                                                table.findRowsWhichSatisfy(conditions).forEach {
                                                     rows += it.sequencedValues().joinToString(separator = Table.TABLE_DATA_SEPARATOR)
                                                 }
                                                 printTableRows(rows)
                                             }
-                                        } else {
-                                            when (request[++currentWord]) {
-                                                "where" -> {
-                                                    if (++currentWord > request.lastIndex) {
-                                                        Logger.log("Incorrect input. Expected id=value")
-                                                        continue
-                                                    }
-                                                    val conditions = extractKeyValuesAfterKeyword(request, "where")
-                                                    val table = schema.findTable(tableName)
-                                                    if (table != null) {
-                                                        val rows = mutableListOf(table.columns.joinToString(separator = Table.TABLE_DATA_SEPARATOR) { it.name })
-                                                        table.findRowsWhichSatisfy(conditions).forEach {
-                                                            rows += it.sequencedValues().joinToString(separator = Table.TABLE_DATA_SEPARATOR)
-                                                        }
-                                                        printTableRows(rows)
-                                                    }
-                                                }
-                                                else -> Logger.log("Incorrect input. Expected keyword: 'where'")
-                                            }
                                         }
+                                        else -> Logger.log("Incorrect input. Expected keyword: 'where'")
                                     }
                                 }
-                                else -> Logger.log("Incorrect input. Expected keyword: 'table' after 'from'")
                             }
                         }
                         else -> Logger.log("Incorrect input. Expected keyword: 'from' after 'select'")
@@ -478,84 +451,93 @@ object TaskManager : Thread() {
                         else -> Logger.log("Incorrect input. Expected keyword: 'schema' after 'default'")
                     }
                 }
-                "laba" -> {
+                "students" -> {
                     if (Database.defaultSchema == null) {
                         Logger.log("There is no default schema. Declare default schema firstly")
                         continue
                     }
                     if (++currentWord > request.lastIndex) {
-                        startLaba()
+                        Logger.log("Expected 'from' after students")
                         continue
                     }
                     when (request[currentWord]) {
-                        "students" -> {
+                        "from" -> {
                             if (++currentWord > request.lastIndex) {
-                                Logger.log("Expected 'from' after students")
+                                Logger.log("Expected 'file' after 'from'")
                                 continue
                             }
                             when (request[currentWord]) {
-                                "from" -> {
+                                "file" -> {
                                     if (++currentWord > request.lastIndex) {
-                                        Logger.log("Expected 'file' after 'from'")
+                                        Logger.log("Expected file path after 'file'")
                                         continue
                                     }
-                                    when (request[currentWord]) {
-                                        "file" -> {
-                                            if (++currentWord > request.lastIndex) {
-                                                Logger.log("Expected file path after 'file'")
-                                                continue
-                                            }
-                                            val filePath = request[currentWord]
-                                            createStudentsTableFromFile(filePath)
-                                        }
-                                        else -> Logger.log("Expected 'file' after 'from'")
-                                    }
+                                    val filePath = request[currentWord]
+                                    createStudentsTableFromFile(filePath)
                                 }
-                                else -> Logger.log("Expected 'from' after students")
+                                else -> Logger.log("Expected 'file' after 'from'")
                             }
                         }
-                        "variants" -> {
-                            if (++currentWord > request.lastIndex) {
-                                Logger.log("Expected 'from' after variants")
-                                continue
-                            }
-                            when (request[currentWord]) {
-                                "from" -> {
-                                    if (++currentWord > request.lastIndex) {
-                                        Logger.log("Expected 'file' after 'from'")
-                                        continue
-                                    }
-                                    when (request[currentWord]) {
-                                        "file" -> {
-                                            if (++currentWord > request.lastIndex) {
-                                                Logger.log("Expected file path after 'file'")
-                                                continue
-                                            }
-                                            val filePath = request[currentWord]
-                                            createVariantsTableFromFile(filePath)
-                                        }
-                                        else -> Logger.log("Expected 'file' after 'from'")
-                                    }
-                                }
-                                else -> Logger.log("Expected 'from' after variants")
-                            }
-                        }
-                        else -> Logger.log("Expected keyword 'students'")
+                        else -> Logger.log("Expected 'from' after students")
                     }
+                }
+                "variants" -> {
+                    if (Database.defaultSchema == null) {
+                        Logger.log("There is no default schema. Declare default schema firstly")
+                        continue
+                    }
+                    if (++currentWord > request.lastIndex) {
+                        Logger.log("Expected 'from' after variants")
+                        continue
+                    }
+                    when (request[currentWord]) {
+                        "from" -> {
+                            if (++currentWord > request.lastIndex) {
+                                Logger.log("Expected 'file' after 'from'")
+                                continue
+                            }
+                            when (request[currentWord]) {
+                                "file" -> {
+                                    if (++currentWord > request.lastIndex) {
+                                        Logger.log("Expected file path after 'file'")
+                                        continue
+                                    }
+                                    val filePath = request[currentWord]
+                                    createVariantsTableFromFile(filePath)
+                                }
+                                else -> Logger.log("Expected 'file' after 'from'")
+                            }
+                        }
+                        else -> Logger.log("Expected 'from' after variants")
+                    }
+                }
+                "generate" -> {
+                    if (++currentWord > request.lastIndex) {
+                        Logger.log("Incorrect input. Expected 'tables' after 'generate'")
+                        continue
+                    }
+                    if (Database.defaultSchema == null) {
+                        Logger.log("There is no default schema. Declare default schema firstly")
+                        continue
+                    }
+                    startLaba();
                 }
                 "help" -> {
                     Logger.log("create 'schema'/'table' name")
                     Logger.log("set default 'schema' schema_name")
-                    Logger.log("update 'table' table_name [['add column' column_name], ['values' columns_names=values 'where' columns_names=values]]")
-                    Logger.log("delete [['schema'/'table' name], ['from' 'table' table_name 'where' column=value]] ")
+                    Logger.log("update table_name [['add column' column_name], ['values' columns_names=values 'where' columns_names=values]]")
+                    Logger.log("delete [['schema'/'table' name], ['from' table_name 'where' column=value]] ")
                     Logger.log("insert into [['schema' 'table' from 'file' file_path], ['table' table_name 'values' columns_names=values]")
                     Logger.log("default 'schema' schema_name")
-                    Logger.log("select 'from' 'table' table_name ['where' columns=values]")
+                    Logger.log("select 'from' table_name ['where' columns=values]")
                     Logger.log("backup 'to'/'from' file_path")
+                    Logger.log("reset default schema")
                     Logger.log("tables")
                     Logger.log("schemas")
+                    Logger.log("students 'from' 'file' file_path")
+                    Logger.log("variants 'from' 'file' file_path")
+                    Logger.log("generate tables")
                     Logger.log("exit")
-                    Logger.log("laba ['students'/'variants' 'from' 'file' file_path]")
                 }
                 "reset" -> {
                     if (++currentWord > request.lastIndex) {

@@ -277,7 +277,13 @@ open class Table(filePath: String, val schema: Schema) {
         return true
     }
 
-    fun delete() = file.delete()
+    fun delete() {
+        if (file.delete()) {
+            Logger.log("Table '$name' has been deleted successfully")
+        } else {
+            Logger.log("Couldn't delete table '$name'")
+        }
+    }
 
     fun isValidColumnValue(columnValue: String) = !columnValue.contains(TABLE_DATA_SEPARATOR)
     fun isValidColumnValue(columnsValues: Collection<String>) = columnsValues.all { isValidColumnValue(it) }
