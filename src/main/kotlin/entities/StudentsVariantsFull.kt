@@ -6,7 +6,7 @@ class StudentsVariantsFull(filePath: String, schema: Schema) : Table(filePath, s
     init {
         if (columns.isEmpty()) {
             addColumn(Column(name = "full_name", isUnique = true, isPk = true))
-            addColumn(Column(name = "variant"))
+            addColumn(Column(name = "path_to_file"))
             addColumn(Column(name = "mark"))
         }
     }
@@ -38,15 +38,29 @@ class StudentsVariantsFull(filePath: String, schema: Schema) : Table(filePath, s
             return false
         }
 
-        val variant = row["variant"]
+        val variant = row["path_to_file"]
         if (variant == null) {
-            Logger.log("Column 'variant' cannot be empty")
+            Logger.log("Column 'path_to_file' cannot be empty")
             return false
         }
-        if (variants.findRowsWhichSatisfy(mapOf("variant" to variant)).isEmpty()) {
+        if (variants.findRowsWhichSatisfy(mapOf("path_to_file" to variant)).isEmpty()) {
             Logger.log("There is no variant = '$variant'")
             return false
         }
         return super.insertRow(row)
+    }
+
+    override fun updateRow(conditions: Map<String, String>, newValues: Map<String, String>): Boolean {
+        val variant = newValues["path_to_file"]
+        if (variant == null) {
+            Logger.log("Column 'path_to_file' cannot be empty")
+            return false
+        }
+        val variants = schema.findTable("variants")
+        if (variants?.findRowsWhichSatisfy(mapOf("path_to_file" to variant))!!.isEmpty()) {
+            Logger.log("There is no variant = '$variant'")
+            return false
+        }
+        return super.updateRow(conditions, newValues)
     }
 }

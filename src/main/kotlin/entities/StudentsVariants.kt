@@ -24,7 +24,7 @@ class StudentsVariants(filePath: String, schema: Schema) : Table(filePath, schem
             ))[0]
             return studentsVariantsFull?.insertRow(mapOf(
                 "full_name" to "${student["name"]} ${student["surname"]} ${student["patronymic"]}",
-                "variant" to (variant["variant"] ?: EMPTY_FIELD_VALUE)
+                "path_to_file" to (variant["path_to_file"] ?: EMPTY_FIELD_VALUE)
             )) ?: false
         }
         return false
@@ -59,10 +59,10 @@ class StudentsVariants(filePath: String, schema: Schema) : Table(filePath, schem
                     return false
                 }
                 val newVariant = variants.findRowsWhichSatisfy(mapOf("id" to newVariantId))[0]
-                val newVariantName = newVariant["variant"] ?: EMPTY_FIELD_VALUE
+                val newVariantName = newVariant["path_to_file"] ?: EMPTY_FIELD_VALUE
                 studentsVariantsFull.updateRow(
                     conditions = mapOf("full_name" to studentFullName),
-                    newValues = mapOf("variant" to newVariantName)
+                    newValues = mapOf("path_to_file" to newVariantName)
                 )
             }
         }

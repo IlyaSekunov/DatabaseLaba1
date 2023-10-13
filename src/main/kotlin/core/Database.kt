@@ -13,7 +13,7 @@ object Database {
             Logger.log("Loading schema '$schemaName'...")
             schemas.add(Schema("$WORK_DIR_PATH$FILE_PATH_SEPARATOR$schemaName"))
         } else {
-            Logger.log("Entities.Schema $schemaName already exists")
+            Logger.log("Schema $schemaName already exists")
         }
     }
 

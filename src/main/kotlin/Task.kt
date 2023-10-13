@@ -77,7 +77,7 @@ fun createVariantsTableFromFile(filePath: String) {
     }
     file.readLines().forEach {
         variants.insertRow(mapOf(
-            "variant" to it
+            "path_to_file" to it
         ))
     }
 }
